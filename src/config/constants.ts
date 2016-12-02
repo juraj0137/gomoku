@@ -20,8 +20,8 @@ export const TILE_HEIGHT = 50;
 export const TILE_BORDER_WIDTH = 1;
 export const TILE_BORDER_COLOR = 'silver';
 
-export const WS_ADDRESS = "ws://130.234.201.86";
-export const WS_PORT = "8087";
+export const WS_ADDRESS = "130.234.201.86";
+export const WS_PORT = 8087;
 
 export const GAME_LIVE = "live";
 export const GAME_TIE = "tie";

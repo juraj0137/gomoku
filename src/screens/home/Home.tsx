@@ -58,7 +58,7 @@ class Home extends React.Component<IHomeProps, IHomeState> {
 
         let navigator = this.props.navigator;
 
-        return <View style={[baseStyle.containerCenterHorizontal]}>
+        return <View style={[baseStyle.containerCenterHorizontal, {paddingHorizontal: 20}]}>
 
             <Button onPress={() => this.onMultiPlayerPress()} style={style.customButton}>
                 <Text style={baseStyle.text}>Multiplayer</Text>

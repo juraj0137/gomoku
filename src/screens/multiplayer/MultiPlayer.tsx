@@ -15,6 +15,8 @@ import {INTERNET_STATUS} from "../../actions/net";
 import {WEBSOCKET_STATUS} from "../../actions/websocket";
 import {WsHandler} from "../../model/WsHandler";
 
+const uuid = require('node-uuid');
+
 const {View}               = ReactNative;
 const {InteractionManager} = ReactNative;
 
@@ -30,7 +32,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
 
     componentWillMount(): void {
         this.me = {
-            id: '123', //todo,
+            id: uuid.v4(),
             nick: this.props.user.nick || 'You'
         };
 
@@ -75,16 +77,16 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
         WsHandler.playerLeft(this.me);
     }
 
-    private findGame(): void {
+    private findGame = (): void => {
         if (this.props.game.status !== constants.GAME_CANCELED) {
             return;
         }
 
-        WsHandler.fetchGame().then(config => {
+        WsHandler.fetchGame(this.me).then(config => {
             this.opponent = config.opponent;
             this.props.initGame(this.me, this.opponent, config.playerInTurn, config.gameId);
-        })
-    }
+        }).catch(e => console.warn(e.message));
+    };
 
     private showLongSnackbar(text: string) {
         SnackBar.show(text, {duration: SnackBar.LONG});
@@ -165,8 +167,9 @@ const mapStateToProps = (state: IReduxState) => ({
 const mapDispatchToProps = (dispatch: IDispatch<IReduxState>) => ({
     changeSigns: () => dispatch(fromGame.changeSigns()),
     initGame: (me: IPlayer, opponent: IPlayer, playerInTurn: IPlayer, gameId: string) =>
-        dispatch(fromGame.initGame(me, opponent, me, gameId)),
+        dispatch(fromGame.initGame(me, opponent, playerInTurn, gameId)),
     makeMove: (m: IMove) => dispatch(fromGame.makeMove(m.row, m.column, m.player)),
+    dispatch
 });
 
 export const route = {

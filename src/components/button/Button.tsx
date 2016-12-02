@@ -21,7 +21,6 @@ class Button extends React.Component<IButtonProps, any> {
             borderWidth: border,
             borderStyle: 'solid',
             borderColor: 'green',
-            borderRadius: 45,
             minHeight: 56,
             minWidth: 56
         } as ViewStyle;
