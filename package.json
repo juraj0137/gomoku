@@ -1,0 +1,41 @@
+{
+  "name": "gomoku",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest",
+    "preinstall": "rm -rf typings",
+    "postinstall": "node node_modules/typings/dist/bin.js install && npm run add-typings && tsc>/dev/null || npm run create-indexjs",
+    "android": "node node_modules/react-native/local-cli/cli.js run-android",
+    "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
+    "prebuild": "rm -rf build",
+    "build": "tsc",
+    "create-indexjs": "react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --sourcemap-output android/app/src/main/assets/index.android.map --assets-dest android/app/src/main/res/",
+    "add-typings": "echo \"/// <reference path='../src/typings/index.d.ts' />\" >> typings/index.d.ts"
+  },
+  "dependencies": {
+    "react": "15.4.1",
+    "react-native": "0.38.0",
+    "react-native-android-snackbar": "^0.1.0",
+    "react-native-keep-awake": "^1.0.7",
+    "react-native-vector-icons": "^3.0.0",
+    "react-redux": "^4.4.6",
+    "redux": "^3.6.0",
+    "redux-logger": "^2.7.4",
+    "redux-promise": "^0.5.3",
+    "redux-thunk": "^2.1.0",
+    "ws": "latest"
+  },
+  "jest": {
+    "preset": "react-native"
+  },
+  "devDependencies": {
+    "babel-jest": "17.0.2",
+    "babel-preset-react-native": "1.9.0",
+    "jest": "17.0.3",
+    "react-test-renderer": "15.4.1",
+    "typescript": "^2.0.10",
+    "typings": "^2.0.0"
+  }
+}

@@ -1,0 +1,3 @@
+interface IReduxStateNet {
+    status: any;
+}
