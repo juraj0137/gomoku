@@ -51,6 +51,10 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
         });
     }
 
+    componentWillUnmount(): void {
+        this.props.dispatch(fromGame.resetGame());
+    }
+
     private botMoveIfCan = (responseCode: string) => {
 
         if (responseCode !== fromGame.MAKE_MOVE_NORMAL) {
@@ -137,6 +141,7 @@ const mapDispatchToProps = (dispatch: IDispatch<IReduxState>) => ({
     changeSigns: () => dispatch(fromGame.changeSigns()),
     initGame: (me: IPlayer, opponent: IPlayer) => dispatch(fromGame.initGame(me, opponent, me)),
     makeMove: (m: IMove) => dispatch(fromGame.makeMove(m.row, m.column, m.player)),
+    dispatch
 });
 
 export const route = {

@@ -1914,7 +1914,7 @@ declare namespace  __React {
         html: string;
 
         /*
-         * The baseStyle URL to be used for any relative links in the HTML.
+         * The base URL to be used for any relative links in the HTML.
          */
         baseUrl?: string;
     }
@@ -7071,7 +7071,7 @@ declare namespace  __React {
         setOffset(offset: number): void;
 
         /**
-         * Merges the offset value into the baseStyle value and resets the offset to zero.
+         * Merges the offset value into the base value and resets the offset to zero.
          * The final output of the value is unchanged.
          */
         flattenOffset(): void;
@@ -8062,7 +8062,7 @@ declare namespace  __React {
 
     export var DeviceEventEmitter: DeviceEventEmitterStatic
     /**
-     * Abstract baseStyle class for implementing event-emitting modules. This implements
+     * Abstract base class for implementing event-emitting modules. This implements
      * a subset of the standard EventEmitter node module API.
      */
     export interface NativeEventEmitter extends EventEmitter {}

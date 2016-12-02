@@ -23,6 +23,7 @@
   "exclude": [
     "index.android.js",
     "index.ios.js",
+    "server.js",
     "build",
     "node_modules",
     "__tests__"

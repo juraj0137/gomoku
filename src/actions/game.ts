@@ -132,3 +132,10 @@ export const changeSigns: IActionCreator<IAction> = () => ({
 });
 
 
+export const RESET = "RESET";
+export const resetGame: IActionCreator<IAction> = () => ({
+    type: RESET
+});
+
+
+

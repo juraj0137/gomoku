@@ -1,6 +1,6 @@
 ///<reference path="game.d.ts"/>
 import {constants} from '../config';
-import {INIT_GAME, ADD_MOVE, CHANGE_GAME_STATUS} from '../actions/game';
+import {INIT_GAME, ADD_MOVE, CHANGE_GAME_STATUS, RESET} from '../actions/game';
 import {evaluatedGameBoard} from "../model/Evaluate";
 import setPrototypeOf = Reflect.setPrototypeOf;
 
@@ -63,6 +63,10 @@ function gameReducer(state: IReduxStateGame = initialState, commonAction: IActio
             moves: [...state.moves, action.payload.move],
             playerInTurn: state.me == state.playerInTurn ? state.opponent : state.me,
         });
+    }
+
+    if (commonAction.type == RESET) {
+        return Object.assign({}, initialState);
     }
 
     return state;

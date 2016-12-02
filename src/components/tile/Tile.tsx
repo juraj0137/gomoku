@@ -30,6 +30,9 @@ class Tile extends React.Component<ITileProps, ITileState> {
         if (oldSign == 0 && (newSign == constants.TILE_CIRCLE || newSign == constants.TILE_CROSS))
             this._highlight();
 
+        if ((oldSign == constants.TILE_CIRCLE || oldSign == constants.TILE_CROSS) && newSign == 0)
+            this._animatedColor.setValue(0);
+
         return true;
     }
 

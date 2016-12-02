@@ -9,6 +9,9 @@ const {StyleSheet} = ReactNative;
 
 const ScoreBar: StatelessComponent<IScoreBarProps> = (props) => {
 
+    if (props.me == null || props.opponent == null)
+        return null;
+
     const getSign = (player: IPlayer): string => {
         return props.playerToSignMapping.circle == player ? 'circle' : 'cross';
     };

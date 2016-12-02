@@ -6,6 +6,7 @@ interface ISinglePlayerProps extends IScreenProps {
     changeSigns: () => any;
     initGame: (me: IPlayer, opponent: IPlayer) => any;
     makeMove: (move: IMove) => any;
+    dispatch: IDispatch<IReduxState>;
 }
 
 interface ISinglePlayerState {
