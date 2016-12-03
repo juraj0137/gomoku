@@ -27,6 +27,7 @@ export const GAME_LIVE = "live";
 export const GAME_TIE = "tie";
 export const GAME_WINNER = "winner";
 export const GAME_CANCELED = "canceled";
+export const GAME_OPPONENT_LEFT = "opponent-left";
 
 export const INTERNET_DISCONNECTED = "disconnected";
 export const INTERNET_CHECKING = "refreshing";

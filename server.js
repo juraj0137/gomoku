@@ -3,9 +3,10 @@ const uuid = require('node-uuid');
 
 const server = new Server({port: 8087});
 
-let waitingPLayer = null;
+let waitings = {};
 let connections = {};
 let opponents = {};
+let playerToFriendlyGame = {};
 
 server.on('connection', function (ws) {
 
@@ -26,39 +27,45 @@ server.on('connection', function (ws) {
             console.log(e)
         }
 
-        console.log(type, payload);
+        console.log(type);
 
         if (type == 'fetch-game') {
 
             connections[payload.player.id] = ws;
+            let gameId = payload.serverId || 'default';
 
-            if (waitingPLayer == null) {
-                waitingPLayer = {
+
+            console.log('gameId', gameId);
+
+            playerToFriendlyGame[payload.player.id] = gameId;
+
+            if (typeof waitings[gameId] == "undefined" || waitings[gameId] == null) {
+                console.log(' ---- new waiting player -----');
+                waitings[gameId] = {
                     ws: ws,
                     player: payload.player,
                     opponentId: null,
                 };
             } else {
+                console.log(' ---- we alredy have waiting player -----');
                 let msg = {
                     type: 'fetch-game-response',
                     payload: {
-                        opponent: waitingPLayer.player,
-                        playerInTurn: Math.random() > 0.5 ? waitingPLayer.player : payload.player,
+                        opponent: waitings[gameId].player,
+                        playerInTurn: Math.random() > 0.5 ? waitings[gameId].player : payload.player,
                         gameId: uuid.v4()
                     }
                 };
 
-                opponents[payload.player.id] = waitingPLayer.player.id;
-                opponents[waitingPLayer.player.id] = payload.player.id;
+                opponents[payload.player.id] = waitings[gameId].player.id;
+                opponents[waitings[gameId].player.id] = payload.player.id;
 
                 ws.send(JSON.stringify(msg));
-                console.log('me', JSON.stringify(msg));
 
                 msg.payload.opponent = payload.player;
-                waitingPLayer.ws.send(JSON.stringify(msg));
-                console.log('opponent', JSON.stringify(msg));
+                waitings[gameId].ws.send(JSON.stringify(msg));
 
-                waitingPLayer = null;
+                waitings[gameId] = null;
             }
         }
 
@@ -67,5 +74,35 @@ server.on('connection', function (ws) {
             if (typeof opponentId != "undefined")
                 connections[opponentId].send(msg.data);
         }
-    }
+
+        if (type == 'opponent-left') {
+            let opponentId = opponents[payload.player.id];
+
+            delete opponents[payload.player.id];
+            delete connections[payload.player.id];
+
+            if (typeof opponentId != "undefined" && typeof connections[opponentId] !== "undefined") {
+                connections[opponentId].send(JSON.stringify({type: 'opponent-left', payload: {}}));
+            }
+
+            // default multiplaer
+            if (waitings['default'] != null && waitings['default'].player.id == payload.player.id) {
+                waitings['default'] = null;
+            }
+
+            // friendly games
+            let gameId = playerToFriendlyGame[payload.player.id];
+            if (waitings[gameId] != null && waitings[gameId].player.id == payload.player.id) {
+                waitings[gameId] = null;
+            }
+        }
+    };
+
+    ws.onclose = (e) => {
+        console.log(e);
+    };
+
+    ws.onerror = (e) => {
+        console.log(e);
+    };
 });

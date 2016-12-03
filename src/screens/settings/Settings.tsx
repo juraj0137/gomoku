@@ -5,11 +5,13 @@ import {Button}         from '../../components/button';
 import {baseStyle}      from '../../theme';
 import {updateUserData} from '../../actions/user';
 
-const {View}               = ReactNative;
-const {Text}               = ReactNative;
-const {TextInput}          = ReactNative;
-const {StyleSheet}         = ReactNative;
-const {InteractionManager} = ReactNative;
+const {View}                 = ReactNative;
+const {Text}                 = ReactNative;
+const {Keyboard}             = ReactNative;
+const {TextInput}            = ReactNative;
+const {StyleSheet}           = ReactNative;
+const {InteractionManager}   = ReactNative;
+const {KeyboardAvoidingView} = ReactNative;
 
 const Icon = require("react-native-vector-icons/FontAwesome").default;
 
@@ -31,6 +33,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     }
 
     private goBack = (): void => {
+        Keyboard.dismiss();
         this.props.navigator.pop();
     };
 
@@ -59,7 +62,12 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
         return (
             <View style={baseStyle.container}>
                 <Text style={styles.title}> Settings</Text>
-                <View style={styles.main}>
+                <KeyboardAvoidingView
+                    keyboardVerticalOffset={50}
+                    contentContainerStyle={{}}
+                    style={styles.main}
+                    behavior="padding"
+                >
 
                     <View style={styles.inputGroup}>
                         <Text>Your nick:</Text>
@@ -73,16 +81,16 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                     </View>
 
                     <View style={[styles.inputGroup, {flexDirection: 'row',justifyContent: 'space-around'}]}>
-                        <Button onPress={this.goBack} style={{borderWidth: 0}}>
+                        <Button onPress={this.goBack} border={0} innerStyle={{alignItems: 'center'}}>
                             <Icon name="times" size={30}/>
-                        </Button >
+                        </Button>
 
-                        <Button onPress={this.onSave} style={{minWidth: 150}}>
-                            <Text style={{fontSize: 20}}> Save </Text>
+                        <Button onPress={this.onSave} innerStyle={{minWidth: 100, alignItems: 'center'}}>
+                            <Text style={baseStyle.text}>Save</Text>
                         </Button>
                     </View>
 
-                </View>
+                </KeyboardAvoidingView>
             </View>
         )
     }
@@ -115,8 +123,7 @@ const styles = StyleSheet.create({
     } as TextStyle,
     main: {
         flex: 1,
-        paddingBottom: 20,
-        alignItems: 'center',
+        marginBottom: 20,
         justifyContent: 'space-between',
     } as ViewStyle,
     inputGroup: {
@@ -129,5 +136,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'silver',
         paddingBottom: 5,
+        paddingLeft: 0
     } as TextStyle,
 });

@@ -90,7 +90,7 @@ export type CHANGE_GAME_STATUS = { status: string, winner?: IPlayer }
  * @param status
  * @param winner
  */
-const changeGameStatus: IActionCreator<IGenericAction<CHANGE_GAME_STATUS>> = (status: string, winner?: IPlayer) => ({
+export const changeGameStatus: IActionCreator<IGenericAction<CHANGE_GAME_STATUS>> = (status: string, winner: IPlayer = null) => ({
     type: CHANGE_GAME_STATUS,
     payload: {
         status, winner

@@ -1,8 +1,8 @@
 import Store = Redux.Store;
 import {constants} from '../config';
-import {updateWebsocket, WEBSOCKET_STATUS} from "../actions/websocket";
+import {updateWebsocket, WEBSOCKET_STATUS, CHANGE_WS_STATUS} from "../actions/websocket";
 import setPrototypeOf = Reflect.setPrototypeOf;
-import {makeMove} from "../actions/game";
+import {makeMove, changeGameStatus} from "../actions/game";
 
 type FETCHED_GAME = {
     opponent: IPlayer,
@@ -21,7 +21,7 @@ export class WsHandler {
 
     static connect() {
         return new Promise((resolve, reject) => {
-            if (this.connection != null) {
+            if (this.connection !== null && this.connection.readyState == WebSocket.OPEN) {
                 return resolve();
             }
 
@@ -52,20 +52,27 @@ export class WsHandler {
     static onMessageReceive(msg: any) {
         try {
             let {type, payload} = JSON.parse(msg.data);
+            console.warn('received msg', type);
+
             if (type === 'new-move') {
                 console.log(payload);
                 let move = payload.move as IMove;
-                WsHandler.store.dispatch(makeMove(move.row, move.column, WsHandler.store.getState().game.opponent))
+                WsHandler.store.dispatch(makeMove(move.row, move.column, WsHandler.store.getState().game.opponent));
             }
+
+            if (type === "opponent-left") {
+                WsHandler.store.dispatch(changeGameStatus(constants.GAME_OPPONENT_LEFT));
+            }
+
         } catch (e) {
-            console.error(`wshandler onMessageReceive -> ${e.message}`);
+            console.error(`wshandler onMessageReceive -> ${e.message} -> json: ${msg.data}`);
         }
     }
 
-    static fetchGame(player: IPlayer): Promise<FETCHED_GAME> {
+    static fetchGame(player: IPlayer, serverId: string = ''): Promise<FETCHED_GAME> {
         return new Promise((resolve, reject) => {
 
-            this.send('fetch-game', {player});
+            this.send('fetch-game', {player, serverId});
 
             this.connection.addEventListener('message', (msg: MessageEvent) => {
                 try {
@@ -88,7 +95,7 @@ export class WsHandler {
     }
 
     static playerLeft(player: IPlayer) {
-
+        this.send('opponent-left', {player});
     }
 
     static sendMove(move: IMove) {

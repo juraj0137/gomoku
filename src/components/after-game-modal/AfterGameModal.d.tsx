@@ -1,5 +1,5 @@
 interface IAfterGameModalProps {
-    type: "win" | "loss" | "tie" | "";
+    type: "opponent-left" | "win" | "loss" | "tie" | "";
     onNewGameClick: () => void;
     onGoToMenuClick: () => void;
 }

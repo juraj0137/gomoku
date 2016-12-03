@@ -5,7 +5,7 @@ import IThunkAction = Redux.ThunkAction;
 import IActionCreator = Redux.ActionCreator;
 
 interface IReduxState {
-    readonly lastAction: IActionCreator<IAction>;
+    readonly lastAction: IGenericAction<any>;
     readonly user: IReduxStateUser;
     readonly game: IReduxStateGame;
     readonly playerToSignMapping: IReduxStatePlayerToSign;

@@ -12,32 +12,37 @@ const Icon = require("react-native-vector-icons/FontAwesome").default;
 
 import {Button} from'../../components/button';
 import {baseStyle} from '../../theme';
-import TextStyle = __React.TextStyle;
-
 
 import {route as singleplayerRoute} from '../singleplayer';
 import {route as multiplayerRoute} from '../multiplayer';
-// import {route as friendlyMatchRoute} from './FriendlyMatchSetup'; todo
+import {route as friendlyMatchRoute} from '../friendly-match';
 import {route as settingsRoute} from '../settings';
 import {INTERNET_STATUS} from "../../actions/net";
-
-const friendlyMatchRoute = {};
 
 class Home extends React.Component<IHomeProps, IHomeState> {
 
     private onMultiPlayerPress = (): void => {
+        if (this.checkConnectionAndName())
+            this.props.navigator.push(multiplayerRoute);
+    };
+
+    private onFriendlyGamePress() {
+        if (this.checkConnectionAndName())
+            this.props.navigator.push(friendlyMatchRoute)
+    }
+
+    private checkConnectionAndName = (): boolean => {
         if (this.props.user.nick == "") {
             this.showSnackbarEmptyName();
-            return;
+            return false;
         }
 
         // connection required
         if (this.props.net.status !== INTERNET_STATUS.ONLINE) {
             this.showSnackbarInternet();
-            return;
+            return false;
         }
-
-        this.props.navigator.push(multiplayerRoute);
+        return true;
     };
 
     showSnackbarEmptyName() {
@@ -58,26 +63,43 @@ class Home extends React.Component<IHomeProps, IHomeState> {
 
         let navigator = this.props.navigator;
 
-        return <View style={[baseStyle.containerCenterHorizontal, {paddingHorizontal: 20}]}>
+        return <View style={[baseStyle.containerCenterHorizontal, {paddingHorizontal: 30}]}>
 
-            <Button onPress={() => this.onMultiPlayerPress()} style={style.customButton}>
+            <Button
+                onPress={() => this.onMultiPlayerPress()}
+                style={style.customButton}
+                innerStyle={style.innerStyle}
+            >
                 <Text style={baseStyle.text}>Multiplayer</Text>
             </Button>
 
-            <Button onPress={() => navigator.push(singleplayerRoute)} style={style.customButton}>
+            <Button
+                onPress={() => navigator.push(singleplayerRoute)}
+                style={style.customButton}
+                innerStyle={{alignItems: 'center'}}
+            >
                 <Text style={baseStyle.text}>Singleplayer</Text>
             </Button>
 
-            <Button onPress={() => navigator.push(friendlyMatchRoute)} style={style.customButton}>
+            <Button
+                onPress={() => this.onFriendlyGamePress()}
+                style={style.customButton}
+                innerStyle={style.innerStyle}
+            >
                 <Text style={baseStyle.text}>Friendly match</Text>
             </Button>
 
-            <Button border={0} onPress={() => navigator.push(settingsRoute)}>
+            <Button
+                border={0}
+                onPress={() => navigator.push(settingsRoute)}
+                innerStyle={style.innerStyle}
+            >
                 <Icon name="gear" size={30}/>
                 <Text style={[baseStyle.text, style.settingsText]}>Settings</Text>
             </Button>
         </View>;
     }
+
 }
 
 const mapStateToProps = (state: IReduxState) => ({
@@ -94,6 +116,9 @@ const style = StyleSheet.create({
     customButton: {
         minWidth: 200,
         marginVertical: 25,
+    } as ViewStyle,
+    innerStyle: {
+        alignItems: 'center'
     } as ViewStyle,
     notice: {
         marginTop: -32,

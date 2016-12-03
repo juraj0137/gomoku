@@ -3,6 +3,7 @@ import React from 'react';
 import ReactNative from 'react-native';
 
 const {View}               = ReactNative;
+const {TouchableOpacity}   = ReactNative;
 const {TouchableHighlight} = ReactNative;
 
 import {baseStyle} from '../../theme';
@@ -15,14 +16,15 @@ class Button extends React.Component<IButtonProps, any> {
 
     public render() {
 
-        let {style, children, border = 2} = this.props;
+        let {style, innerStyle, children, border = 2} = this.props;
 
         let defaultStyle = {
             borderWidth: border,
             borderStyle: 'solid',
             borderColor: 'green',
             minHeight: 56,
-            minWidth: 56
+            minWidth: 56,
+            borderRadius: 4,
         } as ViewStyle;
 
         let viewStyle = {
@@ -31,15 +33,15 @@ class Button extends React.Component<IButtonProps, any> {
         } as ViewStyle;
 
         return (
-            <TouchableHighlight
+            <TouchableOpacity
+                activeOpacity={0.5}
                 style={[defaultStyle, style]}
-                underlayColor="transparent"
                 onPress={this.props.onPress}
             >
-                <View style={[baseStyle.containerCenter, viewStyle]}>
+                <View style={[baseStyle.containerCenterHorizontal, viewStyle, innerStyle]}>
                     {children}
                 </View>
-            </TouchableHighlight>
+            </TouchableOpacity>
         )
     }
 }

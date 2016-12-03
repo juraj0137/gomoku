@@ -29,7 +29,7 @@ class MyNavigator extends Component<INavigatorProps, INavigatorState> {
                 navigator.pop();
                 return true;
             }
-            return false;
+            BackAndroid.exitApp();
         };
 
         BackAndroid.addEventListener("hardwareBackPress", backPressListener);

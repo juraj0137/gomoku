@@ -6,6 +6,7 @@ const {View}               = ReactNative;
 const {Text}               = ReactNative;
 const {Modal}              = ReactNative;
 const {StyleSheet}         = ReactNative;
+const {Dimensions}         = ReactNative;
 const {BackAndroid}        = ReactNative;
 const {TouchableHighlight} = ReactNative;
 
@@ -21,7 +22,7 @@ class AfterGameModal extends React.Component<IAfterGameModalProps, IAfterGameMod
 
         let text = '';
         let subText = '';
-        let isActive = ["win", "loss", "tie"].indexOf(this.props.type) !== -1;
+        let isActive = ["win", "loss", "tie", "opponent-left"].indexOf(this.props.type) !== -1;
 
         switch (this.props.type) {
             case "win":
@@ -34,6 +35,9 @@ class AfterGameModal extends React.Component<IAfterGameModalProps, IAfterGameMod
                 break;
             case "tie":
                 text = "It's a tie";
+                break;
+            case "opponent-left":
+                text = "Opponent left.";
                 break;
         }
 

@@ -1,8 +1,9 @@
 import thunk                          from 'redux-thunk'
-import {reducer}                      from "../reducers/index";
-import {initNetwork}                      from "../actions/net";
 import promise                        from 'redux-promise'
+import {reducer}                      from "../reducers/index";
 import createLogger                   from 'redux-logger';
+import {initNetwork}                  from "../actions/net";
+import {initLocalStorage}             from "./localStorage";
 import {createStore, applyMiddleware} from "redux";
 
 const logger = createLogger({
@@ -18,6 +19,7 @@ export default function (): Store<any> {
         applyMiddleware(thunk, promise, logger)
     ) as Store<any>;
 
+    initLocalStorage(store);
     initNetwork(store);
     WsHandler.injectStore(store);
 

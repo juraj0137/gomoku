@@ -14,16 +14,21 @@ import * as fromReducer from '../../reducers';
 import {INTERNET_STATUS} from "../../actions/net";
 import {WEBSOCKET_STATUS} from "../../actions/websocket";
 import {WsHandler} from "../../model/WsHandler";
+import {resetGame} from "../../actions/game";
+import AppStateStatus = __React.AppStateStatus;
 
 const uuid = require('node-uuid');
 
 const {View}               = ReactNative;
+const {AppState}           = ReactNative;
 const {InteractionManager} = ReactNative;
 
 class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> {
 
     private me: IPlayer;
     private opponent: IPlayer;
+    private serverId: string;
+    private repeatedGame: boolean = false;
 
     constructor(props: IMultiPlayerProps) {
         super(props);
@@ -39,6 +44,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
         if (this.props.net.status == INTERNET_STATUS.ONLINE)
             WsHandler.connect().then(this.findGame).catch(console.warn);
 
+        this.serverId = this.props.route['serverId'] || null;
     }
 
     componentWillReceiveProps(nextProps: IMultiPlayerProps): void {
@@ -48,6 +54,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
 
         const prevWS = this.props.websocket.status;
         const nextWS = nextProps.websocket.status;
+        let timer: number = 0;
 
         // --> offline
         if (prevNet == INTERNET_STATUS.ONLINE && nextNet == INTERNET_STATUS.OFFLINE) {
@@ -62,6 +69,9 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
         // --> ws lost
         if (prevWS == WEBSOCKET_STATUS.ONLINE && nextWS == WEBSOCKET_STATUS.OFFLINE) {
             this.showLongSnackbar("Server connection problem.");
+            setInterval(() => {
+                WsHandler.connect().then(() => this.findGame()).catch(console.warn);
+            }, 3000);
         }
     }
 
@@ -69,20 +79,29 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
         InteractionManager.runAfterInteractions(() => {
             this.setState({showLoader: false});
         });
-
-        // WSHandler.onOpponentLeft(/* todo show modal */);
+        AppState.addEventListener('change', this.handleAppStateChange);
     }
 
     componentWillUnmount(): void {
+        AppState.removeEventListener('change', this.handleAppStateChange);
         WsHandler.playerLeft(this.me);
+        this.props.dispatch(fromGame.resetGame());
     }
 
-    private findGame = (): void => {
-        if (this.props.game.status !== constants.GAME_CANCELED) {
+    private handleAppStateChange = (state: AppStateStatus) => {
+        if (state == 'background') {
+            this.props.navigator.popToTop();
+            WsHandler.playerLeft(this.me);
+            AppState.removeEventListener('change', this.handleAppStateChange);
+        }
+    };
+
+    private findGame = (checkGameStatus: boolean = true): void => {
+        if (checkGameStatus && this.props.game.status !== constants.GAME_CANCELED) {
             return;
         }
 
-        WsHandler.fetchGame(this.me).then(config => {
+        WsHandler.fetchGame(this.me, this.serverId).then(config => {
             this.opponent = config.opponent;
             this.props.initGame(this.me, this.opponent, config.playerInTurn, config.gameId);
         }).catch(e => console.warn(e.message));
@@ -104,30 +123,41 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
         this.props
             .makeMove(move)
             .then(() => WsHandler.sendMove(move))
-            .catch(console.log);
+            .catch(console.warn);
     };
 
-    private goToMenu = () => this.props.navigator.pop();
+    private goToMenu = () => this.props.navigator.popToTop();
 
-    private getAfterGameModalType = (): "win" | "loss" | "tie" | "" => {
+    private onNewGameClick = () => {
+        this.repeatedGame = true;
+        this.props.dispatch(resetGame());
+        this.findGame(false);
+    };
 
+    private getAfterGameModalType = () => {
         const gameStatus = this.props.game.status;
-
+        let result = '';
         if (gameStatus == constants.GAME_WINNER) {
-            return this.props.game.winner == this.me ? 'win' : 'loss';
+            result = this.props.game.winner == this.me ? 'win' : 'loss';
         } else if (gameStatus == constants.GAME_TIE) {
-            return 'tie';
+            result = 'tie';
+        } else if (gameStatus == constants.GAME_OPPONENT_LEFT) {
+            result = 'opponent-left';
         }
-        return '';
+        return result as "opponent-left" | "win" | "loss" | "tie" | "";
     };
 
     render() {
-//|| this.props.net.webSocket !== WEBSOCKET_STATUS.ONLINE
-        if (this.props.net.status !== INTERNET_STATUS.ONLINE)
+
+        if (this.state.showLoader)
+            return <LoadingPage text=""/>;
+
+        if (this.props.net.status !== INTERNET_STATUS.ONLINE || this.props.websocket.status !== WEBSOCKET_STATUS.ONLINE)
             return <LoadingPage text="Connecting"/>;
 
-        if (this.state.showLoader || this.props.game.status == constants.GAME_CANCELED) // not initialized game
-            return <LoadingPage text="Preparing game"/>;
+        const serverCode = !this.repeatedGame && this.serverId != null ? this.serverId : null;
+        if (this.props.game.status == constants.GAME_CANCELED)
+            return <LoadingPage text="Looking for opponnent" serverCode={serverCode}/>;
 
         const moves = this.props.game.moves;
         const lastMove = moves.length > 0 ? moves[moves.length - 1] : null;
@@ -147,7 +177,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
             />
             <AfterGameModal
                 type={this.getAfterGameModalType()}
-                onNewGameClick={() => null}
+                onNewGameClick={this.onNewGameClick}
                 onGoToMenuClick={this.goToMenu}
             />
 

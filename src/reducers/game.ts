@@ -47,8 +47,6 @@ function gameReducer(state: IReduxStateGame = initialState, commonAction: IActio
     if (commonAction.type == CHANGE_GAME_STATUS) {
         const action = commonAction as IGenericAction<CHANGE_GAME_STATUS>;
 
-        console.log('CHANGE_GAME_STATUS', JSON.stringify(action.payload));
-
         return Object.assign({}, state, {
             winner: action.payload.winner,
             status: action.payload.status

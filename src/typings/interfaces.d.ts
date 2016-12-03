@@ -8,11 +8,15 @@ interface IRoute {
 }
 
 interface IScreenProps {
-    route: Route,
+    route: {[key: string]: any} | Route,
     navigator: __React.Navigator;
 }
 
 declare namespace __React {
+
+    interface NativeEventEmitter {
+        dismiss(): void;
+    }
 
     module Animated {
 
