@@ -1,8 +1,6 @@
 package com.gomoku;
 
 import com.facebook.react.ReactActivity;
-import com.corbt.keepawake.KCKeepAwakePackage;
-import com.oblador.vectoricons.VectorIconsPackage;
 
 public class MainActivity extends ReactActivity {
 
