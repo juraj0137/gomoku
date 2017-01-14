@@ -3,6 +3,18 @@ import {constants} from '../config';
 import {updateWebsocket, WEBSOCKET_STATUS, CHANGE_WS_STATUS} from "../actions/websocket";
 import setPrototypeOf = Reflect.setPrototypeOf;
 import {makeMove, changeGameStatus} from "../actions/game";
+import * as firebase from 'firebase';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDO4bVz5qIgvHgZ7o9p8WgoY3cAOK6h0oI",
+    authDomain: "gomoku-dc904.firebaseapp.com",
+    databaseURL: "https://gomoku-dc904.firebaseio.com",
+    storageBucket: "gomoku-dc904.appspot.com",
+    messagingSenderId: "1034032504889"
+};
+
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+
 
 type FETCHED_GAME = {
     opponent: IPlayer,
@@ -17,6 +29,7 @@ export class WsHandler {
 
     public static injectStore(store: Store<IReduxState>) {
         WsHandler.store = store;
+        firebaseApp.database().ref('/waiting').push(Math.round(Math.random() * 1000));
     }
 
     static connect() {
