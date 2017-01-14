@@ -1,4 +1,5 @@
 /// <reference path="../src/typings/index.d.ts" />
+/// <reference path="globals/firebase/index.d.ts" />
 /// <reference path="globals/node-uuid/index.d.ts" />
 /// <reference path="globals/react-native/index.d.ts" />
 /// <reference path="globals/react-redux/index.d.ts" />

@@ -2,6 +2,7 @@
   "name": "gomoku",
   "dependencies": {},
   "globalDependencies": {
+    "firebase": "registry:dt/firebase#2.4.1+20160510002910",
     "node-uuid": "registry:dt/node-uuid#0.0.0+20160316155526",
     "react": "registry:dt/react#0.14.0+20161124131900",
     "react-native": "registry:dt/react-native#0.34.0+20161025173646",
