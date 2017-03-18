@@ -1,5 +1,6 @@
 import * as constants from '../config/constants'
 import * as fromGame from '../reducers/game';
+import {Firebase} from '../model/Firebase'
 import PromiseAction = Redux.PromiseAction;
 
 export const INIT_GAME = 'INIT_GAME';
@@ -46,9 +47,13 @@ export type MAKE_MOVE = {move: IMove};
  */
 export const makeMove: IActionCreator<any> = (row: number, column: number, player: IPlayer) => {
 
-    return Promise.resolve((dispatch: IDispatch<IReduxState>, getState: () => IReduxState) => {
+    return Promise.resolve((dispatch: any, getState: () => IReduxState) => {
 
         const state = getState();
+
+        if (state.game.status != constants.GAME_LIVE) {
+            return;
+        }
 
         // check if player is in turn
         if (fromGame.getIsPlayersTurn(state.game, player) == false) {
@@ -61,28 +66,32 @@ export const makeMove: IActionCreator<any> = (row: number, column: number, playe
         }
 
         // add move
-        dispatch(addMove(row, column, player));
+        return dispatch(addMove(row, column, player))
+            .then(() => {
 
-        // check if is win/loos + dispatch
-        if (fromGame.getIsTie(getState().game)) {
-            dispatch(changeGameStatus(constants.GAME_TIE));
-            return Promise.resolve(MAKE_MOVE_GAME_END);
-        }
+                const lastMove: IMove = {player, row, column};
+                Firebase.sendMove(lastMove);
 
-        // check if is tie + dispatch
-        const lastMove: IMove = {player, row, column};
-        if (fromGame.getIsWinner(getState().game, lastMove)) {
-            dispatch(changeGameStatus(constants.GAME_WINNER, player));
-            return Promise.resolve(MAKE_MOVE_GAME_END);
-        }
+                // check if is tie + dispatch
+                if (fromGame.getIsTie(getState().game)) {
+                    dispatch(changeGameStatus(constants.GAME_TIE));
+                    Firebase.endGame();
+                    return Promise.resolve(MAKE_MOVE_GAME_END);
+                } else if (fromGame.getIsWinner(getState().game, lastMove)) {
+                    dispatch(changeGameStatus(constants.GAME_WINNER, player));
+                    Firebase.endGame();
+                    return Promise.resolve(MAKE_MOVE_GAME_END);
+                } else {
+                    return Promise.resolve(MAKE_MOVE_NORMAL);
+                }
 
-        return Promise.resolve(MAKE_MOVE_NORMAL);
+            });
     });
 };
 
 
 export const CHANGE_GAME_STATUS = 'CHANGE_GAME_STATUS';
-export type CHANGE_GAME_STATUS = { status: string, winner?: IPlayer }
+export type CHANGE_GAME_STATUS = {status: string, winner?: IPlayer}
 
 /**
  * Change game status (live, tie, winner)
@@ -110,14 +119,19 @@ type ADD_MOVE_FUNCTION = IActionCreator<IGenericAction<ADD_MOVE>>;
  * @param player
  * @return {IGenericAction<ADD_MOVE>}
  */
-export const addMove: ADD_MOVE_FUNCTION = (row: number, column: number, player: IPlayer) => ({
-    type: ADD_MOVE,
-    payload: {
-        move: {
-            player, row, column
-        }
+export const addMove: IActionCreator<any> = (row: number, column: number, player: IPlayer) => {
+    return (dispatch: any) => {
+        dispatch({
+            type: ADD_MOVE,
+            payload: {
+                move: {
+                    player, row, column
+                }
+            }
+        });
+        return Promise.resolve();
     }
-});
+};
 
 
 export const CHANGE_SIGNS = 'CHANGE_SIGNS';

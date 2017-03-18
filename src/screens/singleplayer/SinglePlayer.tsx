@@ -1,16 +1,17 @@
 ///<reference path="SinglePlayer.d.tsx"/>
-import React            from 'react';
-import ReactNative      from 'react-native';
-import {connect}        from "react-redux";
-import {Bot}            from "../../model/Bot";
-import {Board}          from '../../components/board';
-import {ScoreBar}       from '../../components/score-bar';
-import {baseStyle}      from '../../theme';
-import {constants}      from '../../config';
-import {LoadingPage}    from '../loading-page';
-import {AfterGameModal} from '../../components/after-game-modal';
-import * as fromGame    from '../../actions/game';
-import * as fromReducer from '../../reducers';
+import React                     from 'react';
+import ReactNative               from 'react-native';
+import {connect}                 from "react-redux";
+import {Bot}                     from "../../model/Bot";
+import {Board}                   from '../../components/board';
+import {ScoreBar}                from '../../components/score-bar';
+import {baseStyle}               from '../../theme';
+import {constants}               from '../../config';
+import {LoadingPage}             from '../loading-page';
+import {AfterGameModal}          from '../../components/after-game-modal';
+import * as fromGame             from '../../actions/game';
+import * as fromReducer          from '../../reducers';
+import {route as afterGameRoute} from '../after-game';
 
 const {View}               = ReactNative;
 const {InteractionManager} = ReactNative;
@@ -55,6 +56,22 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
         this.props.dispatch(fromGame.resetGame());
     }
 
+    showAfterGameScreen = (): void => {
+
+        const gameStatus = this.props.game.status;
+        let status = '';
+        let onNewGame = () => this.props.initGame(this.me, this.opponent);
+
+        if (gameStatus == constants.GAME_WINNER) {
+            status = this.props.game.winner == this.me ? 'win' : 'loss';
+        } else if (gameStatus == constants.GAME_TIE) {
+            status = 'tie';
+        }
+
+        if(status != '')
+            this.props.navigator.push(Object.assign({}, afterGameRoute, {status, onNewGame}))
+    };
+
     private botMoveIfCan = (responseCode: string) => {
 
         if (responseCode !== fromGame.MAKE_MOVE_NORMAL) {
@@ -64,9 +81,21 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
         setTimeout(() => {
             this.props
                 .makeMove(this.bot.getNextMove(this.props.game.moves))
+                .then(this.afterMove)
                 .catch(console.log);
         }, 200);
 
+    };
+
+    private afterMove = (responseCode: string) => {
+
+        if(responseCode == fromGame.MAKE_MOVE_GAME_END){
+            // todo make amazing animation in the end of game
+
+            this.showAfterGameScreen();
+        }
+
+        return responseCode;
     };
 
     private onTileTouch = (row: number, column: number) => {
@@ -81,22 +110,9 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
 
         this.props
             .makeMove(move)
+            .then(this.afterMove)
             .then(this.botMoveIfCan)
             .catch(console.log);
-    };
-
-    private goToMenu = () => this.props.navigator.pop();
-
-    private getAfterGameModalType = (): "win" | "loss" | "tie" | "" => {
-
-        const gameStatus = this.props.game.status;
-
-        if (gameStatus == constants.GAME_WINNER) {
-            return this.props.game.winner == this.me ? 'win' : 'loss';
-        } else if (gameStatus == constants.GAME_TIE) {
-            return 'tie';
-        }
-        return '';
     };
 
     render() {
@@ -119,11 +135,6 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
                 lastMove={lastMove}
                 mappedMoves={this.props.mappedMoves}
                 onTouch={this.onTileTouch}
-            />
-            <AfterGameModal
-                type={this.getAfterGameModalType()}
-                onNewGameClick={() => this.props.initGame(this.me, this.opponent)}
-                onGoToMenuClick={this.goToMenu}
             />
 
         </View>;

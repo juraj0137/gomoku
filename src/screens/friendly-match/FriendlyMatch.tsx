@@ -25,7 +25,12 @@ class FriendlyMatch extends React.Component<IFriendlyMatchProps, IFriendlyMatchS
 
     private startServer = (serverId: string) => {
         Keyboard.dismiss();
-        this.props.navigator.push(Object.assign({}, multiplayerRoute, {serverId}));
+        this.props.navigator.push(Object.assign({}, multiplayerRoute, {serverId, create: true}));
+    };
+
+    private connectToServer = (serverId: string) => {
+        Keyboard.dismiss();
+        this.props.navigator.push(Object.assign({}, multiplayerRoute, {serverId, create: false}));
     };
 
     render(): any {
@@ -72,7 +77,7 @@ class FriendlyMatch extends React.Component<IFriendlyMatchProps, IFriendlyMatchS
                     onChange={(e) => this.setState({serverCode: e.nativeEvent.text.trim()})}
                     onFocus={clearInput}
                     onBlur={() => this.setState({joinGameFocused: false})}
-                    onSubmitEditing={() => this.startServer(this.state.serverCode)}
+                    onSubmitEditing={() => this.connectToServer(this.state.serverCode)}
                     ref={(ref: any) => {this.input = ref}}
                     keyboardType="numeric"
                     maxLength={this.state.joinGameFocused ? 4 : 100}
@@ -92,7 +97,7 @@ class FriendlyMatch extends React.Component<IFriendlyMatchProps, IFriendlyMatchS
                 <Text style={baseStyle.text}>Create server</Text>
             </Button>
             <Text style={{lineHeight: 25, color: '#666'}}>
-                One of the player have to create server, which generates 4-digit number. The second player will connect to server with this generated code.
+                One of the player has to create server, which generates 4-digit number. The second player will connect to server with this code.
             </Text>
         </View>;
     }

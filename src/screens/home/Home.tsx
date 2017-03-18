@@ -6,6 +6,9 @@ import {connect}   from "react-redux";
 const {StyleSheet} = ReactNative;
 const {View} = ReactNative;
 const {Text} = ReactNative;
+const {NetInfo} = ReactNative;
+
+import {updateInternet} from '../../actions/net';
 
 import SnackBar from 'react-native-android-snackbar';
 const Icon = require("react-native-vector-icons/FontAwesome").default;
@@ -22,27 +25,39 @@ import {INTERNET_STATUS} from "../../actions/net";
 class Home extends React.Component<IHomeProps, IHomeState> {
 
     private onMultiPlayerPress = (): void => {
-        if (this.checkConnectionAndName())
-            this.props.navigator.push(multiplayerRoute);
+        this.checkConnectionAndName()
+            .then(() => this.props.navigator.push(multiplayerRoute))
+            .catch(e => null);
     };
 
     private onFriendlyGamePress() {
-        if (this.checkConnectionAndName())
-            this.props.navigator.push(friendlyMatchRoute)
+        this.checkConnectionAndName()
+            .then(() => this.props.navigator.push(friendlyMatchRoute))
+            .catch(e => null);
     }
 
-    private checkConnectionAndName = (): boolean => {
-        if (this.props.user.nick == "") {
-            this.showSnackbarEmptyName();
-            return false;
-        }
+    private checkConnectionAndName = (): Promise<any> => {
+        return new Promise((resolve, reject) => {
 
-        // connection required
-        if (this.props.net.status !== INTERNET_STATUS.ONLINE) {
-            this.showSnackbarInternet();
-            return false;
-        }
-        return true;
+            if (this.props.user.nick == "") {
+                this.showSnackbarEmptyName();
+                reject('');
+            } else if (this.props.net.status !== INTERNET_STATUS.ONLINE) {
+
+                NetInfo.isConnected.fetch().then(isConnected => {
+                    this.props.dispatch(updateInternet(isConnected ? INTERNET_STATUS.ONLINE : INTERNET_STATUS.OFFLINE));
+                    if (isConnected) {
+                        resolve('')
+                    } else {
+                        this.showSnackbarInternet();
+                        reject('');
+                    }
+                });
+            } else {
+                resolve('');
+            }
+
+        })
     };
 
     showSnackbarEmptyName() {
@@ -66,14 +81,6 @@ class Home extends React.Component<IHomeProps, IHomeState> {
         return <View style={[baseStyle.containerCenterHorizontal, {paddingHorizontal: 30}]}>
 
             <Button
-                onPress={() => this.onMultiPlayerPress()}
-                style={style.customButton}
-                innerStyle={style.innerStyle}
-            >
-                <Text style={baseStyle.text}>Multiplayer</Text>
-            </Button>
-
-            <Button
                 onPress={() => navigator.push(singleplayerRoute)}
                 style={style.customButton}
                 innerStyle={{alignItems: 'center'}}
@@ -82,17 +89,18 @@ class Home extends React.Component<IHomeProps, IHomeState> {
             </Button>
 
             <Button
-                onPress={() => this.onFriendlyGamePress()}
+                onPress={() => this.onMultiPlayerPress()}
                 style={style.customButton}
                 innerStyle={style.innerStyle}
             >
-                <Text style={baseStyle.text}>Friendly match</Text>
+                <Text style={baseStyle.text}>Multiplayer</Text>
             </Button>
 
             <Button
                 border={0}
                 onPress={() => navigator.push(settingsRoute)}
                 innerStyle={style.innerStyle}
+                style={{marginVertical: 10}}
             >
                 <Icon name="gear" size={30}/>
                 <Text style={[baseStyle.text, style.settingsText]}>Settings</Text>

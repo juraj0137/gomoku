@@ -13,6 +13,7 @@ const Board: StatelessComponent<IBoardProps> = (props) => {
 
     let width = constants.DEFAULT_COLUMNS * constants.TILE_WIDTH;
     let height = constants.DEFAULT_ROWS * constants.TILE_HEIGHT;
+    let tiles: Tile[][] = [];
 
     let _onTouch = (x: number, y: number) => {
 
@@ -39,9 +40,10 @@ const Board: StatelessComponent<IBoardProps> = (props) => {
         return board;
     };
 
-    let _renderBoard = () => applyPlayerMappingToMatrix().map((row, i) => {
-        return <View key={`row-${i}`} style={styles.row}>
-            {row.map((cell, i) => <Tile sign={cell} key={`cell-${i}`}/>)}
+    let _renderBoard = () => applyPlayerMappingToMatrix().map((row, r) => {
+        tiles.push([]);
+        return <View key={`row-${r}`} style={styles.row}>
+            {row.map((cell, c) => <Tile sign={cell} key={`cell-${c}`} ref={tile => {tiles[r].push(tile)}}/>)}
         </View>
     });
 
@@ -55,6 +57,10 @@ const Board: StatelessComponent<IBoardProps> = (props) => {
             {_renderBoard()}
         </PanRespondEnhancer>
     )
+};
+
+Board.prototype.highlight = () => {
+
 };
 
 export {Board};

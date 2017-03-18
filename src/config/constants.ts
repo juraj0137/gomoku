@@ -4,8 +4,8 @@ export const STORAGE_KEY_USER_DATA = '@Piskvorky:user_data';
 export const PLAYER_ME = 1;
 export const PLAYER_OPPONENT = 2;
 
-export const DEFAULT_ROWS = 15;
-export const DEFAULT_COLUMNS = 15;
+export const DEFAULT_ROWS = 25;
+export const DEFAULT_COLUMNS = 25;
 
 export const SAME_IN_ROW = 5;
 
@@ -45,3 +45,14 @@ export const WS_TYPE_NEW_MOVE = 'new_move';
 
 export const SENDER_SERVER = 'server';
 export const SENDER_CLIENT = 'client';
+
+export const AD_ID_AFTER_GAME = "ca-app-pub-4040146306952797/5098216662";
+export const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDO4bVz5qIgvHgZ7o9p8WgoY3cAOK6h0oI",
+    authDomain: "gomoku-dc904.firebaseapp.com",
+    databaseURL: "https://gomoku-dc904.firebaseio.com",
+    storageBucket: "gomoku-dc904.appspot.com",
+    messagingSenderId: "1034032504889"
+};
+
+export const enableAd = () => Math.random() < 0.2;

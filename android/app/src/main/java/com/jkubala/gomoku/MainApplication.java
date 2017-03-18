@@ -9,9 +9,11 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.sbugert.rnadmob.RNAdMobPackage;
 
 import com.corbt.keepawake.KCKeepAwakePackage;
 import com.lugg.ReactSnackbar.ReactSnackbarPackage;
+import io.fullstack.firestack.FirestackPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,9 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
           new KCKeepAwakePackage(),
-          new ReactSnackbarPackage()
+          new ReactSnackbarPackage(),
+          new RNAdMobPackage(),
+          new FirestackPackage()
       );
     }
   };

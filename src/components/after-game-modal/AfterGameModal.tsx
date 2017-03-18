@@ -1,6 +1,7 @@
 ///<reference path="AfterGameModal.d.tsx"/>
 import React from 'react';
 import ReactNative from 'react-native';
+import {AdMobInterstitial} from 'react-native-admob';
 
 const {View}               = ReactNative;
 const {Text}               = ReactNative;
@@ -17,6 +18,21 @@ import {constants} from '../../config';
 const Icon = require("react-native-vector-icons/FontAwesome").default;
 
 class AfterGameModal extends React.Component<IAfterGameModalProps, IAfterGameModalState> {
+
+    constructor(props: IAfterGameModalProps) {
+        super(props);
+
+        this.state = {
+            modalHiddenForce: false
+        }
+    }
+
+    public componentDidMount () {
+        
+        if(!__DEV__){
+            AdMobInterstitial.requestAd();
+        }
+    }
 
     public render() {
 
@@ -43,21 +59,26 @@ class AfterGameModal extends React.Component<IAfterGameModalProps, IAfterGameMod
 
         const onBackToMenuPress = () => {
             this.props.onGoToMenuClick();
-            BackAndroid.removeEventListener("hardwareBackPress", onBackToMenuPress);
+            this.setState({modalHiddenForce: true})
+            
+            if(!__DEV__){
+                AdMobInterstitial.showAd();        
+            }
         };
 
         const onNewGamePress = () => {
+            if(!__DEV__){
+                AdMobInterstitial.showAd(() => AdMobInterstitial.requestAd());        
+            }
             this.props.onNewGameClick()
         };
-
-        BackAndroid.addEventListener("hardwareBackPress", onBackToMenuPress);
 
         return (
             <Modal
                 animationType={"fade"}
                 transparent={false}
-                onRequestClose={() => null}
-                visible={isActive}
+                onRequestClose={() => onBackToMenuPress()}
+                visible={isActive && this.state.modalHiddenForce == false}
                 onOrientationChange={() => this.forceUpdate()}
                 supportedOrientations={null}
             >
@@ -70,7 +91,7 @@ class AfterGameModal extends React.Component<IAfterGameModalProps, IAfterGameMod
 
                     <TouchableHighlight
                         style={baseStyle.containerCenterVertical}
-                        onPress={this.props.onNewGameClick}
+                        onPress={onNewGamePress}
                         underlayColor="transparent"
                     >
                         <View style={baseStyle.containerCenter}>

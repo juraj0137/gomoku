@@ -11,7 +11,7 @@ const logger = createLogger({
 });
 
 import Store = Redux.Store;
-import {WsHandler} from "../model/WsHandler";
+import {Firebase} from "../model/Firebase";
 
 export default function (): Store<any> {
     const store = createStore(
@@ -21,7 +21,7 @@ export default function (): Store<any> {
 
     initLocalStorage(store);
     initNetwork(store);
-    WsHandler.injectStore(store);
+    Firebase.store = store;
 
     return store;
 }

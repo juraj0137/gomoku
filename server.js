@@ -90,7 +90,7 @@ server.on('connection', function (ws) {
                 waitings['default'] = null;
             }
 
-            // friendly games
+            // friendly dbGames
             let gameId = playerToFriendlyGame[payload.player.id];
             if (waitings[gameId] != null && waitings[gameId].player.id == payload.player.id) {
                 waitings[gameId] = null;

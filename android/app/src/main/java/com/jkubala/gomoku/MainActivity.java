@@ -1,6 +1,10 @@
 package com.jkubala.gomoku;
 
 import com.facebook.react.ReactActivity;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.corbt.keepawake.KCKeepAwakePackage;
+import com.lugg.ReactSnackbar.ReactSnackbarPackage;
+import com.sbugert.rnadmob.RNAdMobPackage;
 
 public class MainActivity extends ReactActivity {
 

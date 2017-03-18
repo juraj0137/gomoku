@@ -8,4 +8,5 @@
 /// <reference path="globals/redux-promise/index.d.ts" />
 /// <reference path="globals/redux-thunk/index.d.ts" />
 /// <reference path="globals/redux/index.d.ts" />
+/// <reference path="globals/rx-lite/index.d.ts" />
 /// <reference path="globals/ws/index.d.ts" />

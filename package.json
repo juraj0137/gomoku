@@ -18,7 +18,9 @@
     "firebase": "^3.6.5",
     "react": "15.4.1",
     "react-native": "0.38.0",
+    "react-native-admob": "^1.1.5",
     "react-native-android-snackbar": "^0.1.0",
+    "react-native-firestack": "^2.3.9",
     "react-native-keep-awake": "^1.0.7",
     "react-native-vector-icons": "^3.0.0",
     "react-redux": "^4.4.6",
@@ -26,6 +28,7 @@
     "redux-logger": "^2.7.4",
     "redux-promise": "^0.5.3",
     "redux-thunk": "^2.1.0",
+    "rxjs": "^5.0.3",
     "ws": "^1.1.1"
   },
   "jest": {

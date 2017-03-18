@@ -4264,6 +4264,7 @@ declare namespace  __React {
         /**
          * Navigate to a new scene and reset route stack.
          */
+
         resetTo( route: Route ): void;
 
     }

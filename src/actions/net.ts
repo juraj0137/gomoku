@@ -9,7 +9,7 @@ export enum INTERNET_STATUS {
 export const CHANGE_INTERNET_STATUS = 'CHANGE_INTERNET_STATUS';
 export type CHANGE_STATUS = {status: INTERNET_STATUS};
 
-const updateInternet: IActionCreator<IGenericAction<CHANGE_STATUS>> = (status: INTERNET_STATUS) => ({
+export const updateInternet: IActionCreator<IGenericAction<CHANGE_STATUS>> = (status: INTERNET_STATUS) => ({
     type: CHANGE_INTERNET_STATUS,
     payload: {status}
 });

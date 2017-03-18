@@ -14,9 +14,9 @@ interface IPlayer {
 }
 
 interface IMove {
-    readonly player: IPlayer;
-    readonly row: number;
-    readonly column: number;
+    player: IPlayer;
+    row: number;
+    column: number;
 }
 
 interface IGame extends IReduxStateGame {

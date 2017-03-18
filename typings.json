@@ -11,6 +11,7 @@
     "redux-logger": "registry:dt/redux-logger#2.6.0+20160619033847",
     "redux-promise": "registry:dt/redux-promise#0.5.3+20160914125120",
     "redux-thunk": "registry:dt/redux-thunk#2.1.0+20160703120921",
+    "rx-lite": "registry:dt/rx-lite#4.0.0+20170105173646",
     "ws": "registry:dt/ws#0.0.0+20161003184106"
   }
 }

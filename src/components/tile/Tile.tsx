@@ -14,6 +14,7 @@ const {TILE_HEIGHT} = constants;
 class Tile extends React.Component<ITileProps, ITileState> {
 
     private _animatedColor: __React.Animated.Value;
+    private _highlightColor: string = 'rgba(14, 175, 14, 0.5)';
 
     protected componentWillMount(): void {
         this._animatedColor = new Animated.Value(0);
@@ -36,18 +37,20 @@ class Tile extends React.Component<ITileProps, ITileState> {
         return true;
     }
 
-    public highlight = (): void => {
-        this._highlight();
+    public highlight = (long: boolean = false): void => {
+        this._highlight(long);
     };
 
-    private _highlight(): void {
+    private _highlight(long: boolean = false): void {
 
         this._animatedColor.setValue(100);
 
+        if (long) return;
+
         Animated.timing(this._animatedColor, {
             toValue: 0,
-            duration: 3000,
-            delay: 2000
+            duration: 1500,
+            delay: 500
         }).start();
     }
 
@@ -56,7 +59,7 @@ class Tile extends React.Component<ITileProps, ITileState> {
         const animatedStyle = {
             backgroundColor: this._animatedColor.interpolate({
                 inputRange: [0, 100],
-                outputRange: ['rgba(255,255,255, 0)', 'rgba(51,156,177, 0.5)']
+                outputRange: ['rgba(255,255,255, 0)', this._highlightColor]
             })
         };
 

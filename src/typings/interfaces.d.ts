@@ -8,8 +8,9 @@ interface IRoute {
 }
 
 interface IScreenProps {
-    route: {[key: string]: any} | Route,
+    route: {[key: string]: any} | Route;
     navigator: __React.Navigator;
+    dispatch: (action: any) => any;
 }
 
 declare namespace __React {
@@ -61,4 +62,14 @@ declare module 'react-native-android-snackbar' {
     }
 
     export = SnackBar;
+}
+
+declare module 'react-native-admob' {
+
+    export class AdMobInterstitial {
+        static requestAd: (any?: any) => any;
+        static showAd: (any?: any) => any;
+        static setAdUnitID: (any?: any) => any;
+
+    }
 }
