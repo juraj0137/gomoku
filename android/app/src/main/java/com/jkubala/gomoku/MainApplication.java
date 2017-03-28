@@ -13,7 +13,6 @@ import com.sbugert.rnadmob.RNAdMobPackage;
 
 import com.corbt.keepawake.KCKeepAwakePackage;
 import com.lugg.ReactSnackbar.ReactSnackbarPackage;
-import io.fullstack.firestack.FirestackPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
           new KCKeepAwakePackage(),
           new ReactSnackbarPackage(),
-          new RNAdMobPackage(),
-          new FirestackPackage()
+          new RNAdMobPackage()
       );
     }
   };
