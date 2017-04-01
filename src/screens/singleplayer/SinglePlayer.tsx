@@ -1,20 +1,20 @@
 ///<reference path="SinglePlayer.d.tsx"/>
-import React                     from 'react';
-import ReactNative               from 'react-native';
-import {connect}                 from "react-redux";
-import {Bot}                     from "../../model/Bot";
-import {Board}                   from '../../components/board';
-import {ScoreBar}                from '../../components/score-bar';
-import {baseStyle}               from '../../theme';
-import {constants}               from '../../config';
-import {LoadingPage}             from '../loading-page';
-import {AfterGameModal}          from '../../components/after-game-modal';
-import * as fromGame             from '../../actions/game';
-import * as fromReducer          from '../../reducers';
-import {route as afterGameRoute} from '../after-game';
+import React from 'react';
+import ReactNative from 'react-native';
+import { connect } from "react-redux";
+import { Bot } from "../../model/Bot";
+import { Board } from '../../components/board';
+import { ScoreBar } from '../../components/score-bar';
+import { baseStyle } from '../../theme';
+import { constants } from '../../config';
+import { LoadingPage } from '../loading-page';
+import { AfterGameModal } from '../../components/after-game-modal';
+import * as fromGame from '../../actions/game';
+import * as fromReducer from '../../reducers';
+import { route as afterGameRoute } from '../after-game';
 
-const {View}               = ReactNative;
-const {InteractionManager} = ReactNative;
+const { View } = ReactNative;
+const { InteractionManager } = ReactNative;
 
 class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerState> {
 
@@ -48,7 +48,7 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
 
     protected componentDidMount() {
         InteractionManager.runAfterInteractions(() => {
-            this.setState({showLoader: false});
+            this.setState({ showLoader: false });
         });
     }
 
@@ -68,8 +68,8 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
             status = 'tie';
         }
 
-        if(status != '')
-            this.props.navigator.push(Object.assign({}, afterGameRoute, {status, onNewGame}))
+        if (status != '')
+            this.props.navigator.push(Object.assign({}, afterGameRoute, { status, onNewGame }))
     };
 
     private botMoveIfCan = (responseCode: string) => {
@@ -89,7 +89,7 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
 
     private afterMove = (responseCode: string) => {
 
-        if(responseCode == fromGame.MAKE_MOVE_GAME_END){
+        if (responseCode == fromGame.MAKE_MOVE_GAME_END) {
             // todo make amazing animation in the end of game
 
             this.showAfterGameScreen();
@@ -118,7 +118,7 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
     render() {
 
         if (this.state.showLoader)
-            return <LoadingPage text="Preparing game"/>;
+            return <LoadingPage text="Preparing game" />;
 
         const moves = this.props.game.moves;
         const lastMove = moves.length > 0 ? moves[moves.length - 1] : null;

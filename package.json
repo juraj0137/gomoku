@@ -12,7 +12,8 @@
     "prebuild": "rm -rf build",
     "build": "tsc",
     "create-indexjs": "react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --sourcemap-output android/app/src/main/assets/index.android.map --assets-dest android/app/src/main/res/",
-    "add-typings": "echo \"/// <reference path='../src/typings/index.d.ts' />\" >> typings/index.d.ts"
+    "add-typings": "echo \"/// <reference path='../src/typings/index.d.ts' />\" >> typings/index.d.ts",
+    "emulator": "/home/juraj/Android/Sdk/tools/emulator -avd Nexus_6_API_25"
   },
   "dependencies": {
     "firebase": "^3.6.5",

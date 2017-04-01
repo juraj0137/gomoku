@@ -13,12 +13,12 @@ export const TILE_ZERO = 0;
 export const TILE_CIRCLE = 1;
 export const TILE_CROSS = 2;
 
-export const MAX_DISTANCE_FROM_CENTER = 3;
-
 export const TILE_WIDTH = 50;
 export const TILE_HEIGHT = 50;
 export const TILE_BORDER_WIDTH = 1;
 export const TILE_BORDER_COLOR = 'silver';
+
+export const MOVE_DISTANCE_FROM_BORDER = TILE_WIDTH * 2;
 
 export const WS_ADDRESS = "130.234.201.86";
 export const WS_PORT = 8087;

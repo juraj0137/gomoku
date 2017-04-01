@@ -1,12 +1,13 @@
 ///<reference path="PanRespondEnhancer.d.tsx"/>
-import React       from 'react';
+import React from 'react';
 import ReactNative from 'react-native';
-import {constants} from '../../config';
+import { constants } from '../../config';
+import { MOVE_DISTANCE_FROM_BORDER } from "../../config/constants";
 
-const {View}         = ReactNative;
-const {Animated}     = ReactNative;
-const {Dimensions}   = ReactNative;
-const {PanResponder} = ReactNative;
+const { View } = ReactNative;
+const { Animated } = ReactNative;
+const { Dimensions } = ReactNative;
+const { PanResponder } = ReactNative;
 
 let WINDOW_HEIGHT = Dimensions.get('window').height;
 let WINDOW_WIDTH = Dimensions.get('window').width;
@@ -28,8 +29,8 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
         this.lastMove = null;
 
         // go to centre
-        let {width, height} = this.props;
-        this.state.pan.setValue({x: (-width + WINDOW_WIDTH) / 2, y: (-height + WINDOW_HEIGHT) / 2});
+        let { width, height } = this.props;
+        this.state.pan.setValue({ x: (-width + WINDOW_WIDTH) / 2, y: (-height + WINDOW_HEIGHT) / 2 });
     }
 
     protected componentWillMount() {
@@ -61,29 +62,51 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
         if (typeof lastMove != "object")
             return;
 
-        if (this.state.isMoving) {
-            setTimeout(() => this.goToNewMoveIfNeeded(lastMove), 30);
-            return;
-        }
+        // if (this.state.isMoving) {
+        //     // setTimeout(() => this.goToNewMoveIfNeeded(lastMove), 30);
+        //     return;
+        // }
 
-        let {row, column} = lastMove;
-        const {TILE_HEIGHT, TILE_WIDTH} = constants;
+        let { row, column } = lastMove;
+        const { TILE_HEIGHT, TILE_WIDTH } = constants;
 
-        let y = row * TILE_HEIGHT + TILE_HEIGHT / 2;
-        let x = column * TILE_WIDTH + TILE_WIDTH / 2;
+        let tileY = row * TILE_HEIGHT;
+        let tileX = column * TILE_WIDTH;
+
+
 
         if (this.lastMove == null || this.lastMove != lastMove) {
+
             // check if tile is in view
             // hack because of typescript don't know __getValue function
             let pan = this.state.pan as MyValueXY;
             let panX = -pan.x.__getValue();
             let panY = -pan.y.__getValue();
 
-            if (x < panX ||
-                panX + WINDOW_WIDTH < x + TILE_WIDTH ||
-                y < panY ||
-                panY + WINDOW_HEIGHT < y + TILE_HEIGHT) {
-                this.goToPosition(-x + WINDOW_WIDTH / 2, -y + WINDOW_HEIGHT / 2);
+            let gotoX = null;
+            let gotoY = null;
+
+            let overLeft = tileX < panX;
+            let overRight = panX + WINDOW_WIDTH < tileX + TILE_WIDTH;
+            let overTop = tileY < panY;
+            let overBottom = panY + WINDOW_HEIGHT < tileY + TILE_HEIGHT;
+
+            let needMove = overLeft || overRight || overTop || overBottom;
+
+            if (overLeft) {
+                gotoX = -tileX + MOVE_DISTANCE_FROM_BORDER;
+            } else if (overRight) {
+                gotoX = -tileX + WINDOW_WIDTH - MOVE_DISTANCE_FROM_BORDER;
+            }
+
+            if (overTop) {
+                gotoY = -tileY + MOVE_DISTANCE_FROM_BORDER;
+            } else if (overBottom) {
+                gotoY = -tileY + WINDOW_HEIGHT - MOVE_DISTANCE_FROM_BORDER;
+            }
+
+            if (needMove) {
+                this.goToPosition(gotoX, gotoY);
             }
         }
 
@@ -92,7 +115,6 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
     };
 
     private onPanResponderGrant = () => {
-        this.setState({isMoving: true});
 
         // hack because of typescript don't know __getValue function
         let pan = this.state.pan as MyValueXY;
@@ -102,28 +124,28 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
             y: pan.y.__getValue()
         });
 
-        this.state.pan.setValue({x: 0, y: 0});
+        this.state.pan.setValue({ x: 0, y: 0 });
     };
 
     private onPanResponderMove = (event: any, gestureState: PanResponderGestureState) => {
-        let {dx, dy} = gestureState;
+        let { dx, dy } = gestureState;
         Animated.event([
-            {dx: this.state.pan.x, dy: this.state.pan.y},
-        ])({dx, dy});
+            { dx: this.state.pan.x, dy: this.state.pan.y },
+        ])({ dx, dy });
     };
 
     private onPanResponderRelease = (event: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         // Flatten the offset to avoid erratic behavior
         this.state.pan.flattenOffset();
 
-        let {dx, dy, vx, vy} = gestureState;
+        let { dx, dy, vx, vy } = gestureState;
         if (typeof this.props.onTouch == "function" && Math.abs(dx) <= 5 && Math.abs(dy) <= 5) {
-            let {locationX, locationY} = event.nativeEvent;
+            let { locationX, locationY } = event.nativeEvent;
             this.props.onTouch(locationX, locationY);
             return;
         }
 
-        let {height, width} = this.props;
+        let { height, width } = this.props;
         let pan = this.state.pan as MyValueXY;
         let oldX = pan.x.__getValue();
         let oldY = pan.y.__getValue();
@@ -134,11 +156,11 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
         let needAnimation = oldX != newX || oldY != newY;
 
         if (needAnimation)
-            this.goToPosition(newX, newY).then(() => this.setState({isMoving: false}));
+            this.goToPosition(newX, newY);
         else
             Animated.decay(
                 this.state.pan,
-                {velocity: {x: vx, y: vy}, deceleration: 0.988,}
+                { velocity: { x: vx, y: vy }, deceleration: 0.988, }
             ).start(() => {
                 oldX = pan.x.__getValue();
                 oldY = pan.y.__getValue();
@@ -149,25 +171,40 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
                 needAnimation = oldX != newX || oldY != newY;
 
                 if (needAnimation)
-                    this.goToPosition(newX, newY).then(() => this.setState({isMoving: false}));
+                    this.goToPosition(newX, newY);
             });
     };
 
     private goToPosition = (x: number, y: number) => {
 
-        return new Promise(resolve => {
+        // make sure we are in view
+        let { height, width } = this.props;
 
-            // check if we are in view
-            let {height, width} = this.props;
-            let newX = Math.max(0, Math.min(width - WINDOW_WIDTH, -x));
-            let newY = Math.max(0, Math.min(height - WINDOW_HEIGHT, -y));
+        x = !x ? x : -Math.max(0, Math.min(width - WINDOW_WIDTH, -x));
+        y = !y ? y : -Math.max(0, Math.min(height - WINDOW_HEIGHT, -y));
 
-            Animated.timing(this.state.pan, {toValue: {x: -newX, y: -newY}, duration: 200}).start(resolve);
+        this.setState({ isMoving: true });
+
+        let animatedValue;
+        let toValue;
+        if (x != null && y != null) {
+            animatedValue = this.state.pan;
+            toValue = { x, y }
+        } else if (x != null) {
+            animatedValue = this.state.pan.x;
+            toValue = x;
+        } else if (y != null) {
+            animatedValue = this.state.pan.y;
+            toValue = y;
+        }
+
+        Animated.timing(animatedValue, { toValue, duration: 200 }).start(() => {
+            this.setState({ isMoving: false });
         });
     };
 
     private animateEntrance = () => {
-        Animated.timing(this.state.opacity, {toValue: 1, duration: 800}).start();
+        Animated.timing(this.state.opacity, { toValue: 1, duration: 800 }).start();
     };
 
     public render() {
@@ -195,13 +232,13 @@ class PanRespondEnhancer extends React.Component<IPanRespondEnhancerProps, IPanR
         return <View style={styles.responder} onLayout={onLayout}>
             <Animated.View style={boardStyle} {...this.responderInstance.panHandlers}>
                 {this.props.children}
-                <View style={touchReceiverStyle}/>
+                <View style={touchReceiverStyle} />
             </Animated.View>
         </View>
     }
 }
 
-export {PanRespondEnhancer};
+export { PanRespondEnhancer };
 
 const styles = ReactNative.StyleSheet.create({
     responder: {
