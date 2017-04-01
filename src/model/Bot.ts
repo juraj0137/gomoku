@@ -1,4 +1,4 @@
-import {constants} from '../config';
+import { constants } from '../config';
 import * as Evaluate from './Evaluate';
 
 type MATRIX = number[][];
@@ -34,7 +34,7 @@ export class Bot {
 
     private _evaluateGameBoard(moves: ReadonlyArray<IMove>) {
 
-        let board: null|IPlayer[][] = [];
+        let board: null | IPlayer[][] = [];
 
         for (let numRow = 0; numRow < constants.DEFAULT_ROWS; numRow++) {
             let row: null[] = [];
@@ -71,16 +71,22 @@ export class Bot {
     }
 
     private _findMostValuableField(evaluation: MATRIX) {
-        let result = {row: 0, column: 0, max: 0};
+        let result = { row: 0, column: 0, max: 0 };
+
+        let evaluations: { evaluation: number; row: number; column: number }[] = [];
 
         evaluation.forEach((row, rowNum) => {
-            row.forEach((col, colNum) => {
-                if (col >= result.max) {
-                    result = {max: col, row: rowNum, column: colNum};
-                }
+            row.forEach((evaluation, colNum) => {
+                evaluations.push({ evaluation: evaluation, row: rowNum, column: colNum });
             })
         });
 
-        return result;
+        evaluations = evaluations
+            .sort((a, b) => b.evaluation - a.evaluation)
+            .filter((item, index, array) => item.evaluation == array[0].evaluation);
+
+        const rndIndex = Math.floor(Math.random() * evaluations.length);
+
+        return evaluations[rndIndex];
     }
 }
