@@ -66,9 +66,9 @@ class Tile extends React.Component<ITileProps, ITileState> {
         let cellText = (): __React.ReactElement<any> => {
             switch (this.props.sign) {
                 case constants.TILE_CIRCLE:
-                    return <Icon name="circle-o" size={TILE_HEIGHT * 0.6}/>;
+                    return <Icon name="circle-o" style={{color: constants.TILE_COLOR_RED}} size={TILE_HEIGHT * 0.6}/>;
                 case constants.TILE_CROSS:
-                    return <Icon name="times" size={TILE_HEIGHT * 0.6}/>;
+                    return <Icon name="times" style={{color: constants.TILE_COLOR_BLUE}} size={TILE_HEIGHT * 0.6}/>;
                 default:
                     return null;
             }

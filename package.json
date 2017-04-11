@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "start": "node node_modules/react-native/local-cli/cli.js start --transformer node_modules/react-native-sm-transformer --skipflow",
     "test": "jest",
     "preinstall": "rm -rf typings",
     "postinstall": "node node_modules/typings/dist/bin.js install && npm run add-typings && tsc>/dev/null || npm run create-indexjs",
@@ -22,6 +22,7 @@
     "react-native-admob": "^1.1.5",
     "react-native-android-snackbar": "^0.1.0",
     "react-native-keep-awake": "^1.0.7",
+    "react-native-sm-transformer": "^1.0.3",
     "react-native-vector-icons": "^3.0.0",
     "react-redux": "^4.4.6",
     "redux": "^3.6.0",
