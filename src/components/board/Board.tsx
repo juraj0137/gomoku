@@ -1,69 +1,92 @@
 ///<reference path="Board.d.tsx"/>
 import React from 'react';
 import ReactNative from 'react-native';
-import {Tile} from '../tile'
-import {constants} from '../../config'
-import {PanRespondEnhancer} from '../pan-respond-enhancer';
+import { Tile } from '../tile'
+import { constants } from '../../config'
+import { PanRespondEnhancer } from '../pan-respond-enhancer';
+import { WinnerSequence } from "../../reducers/game";
+// import { WinnerSequence } from "../../reducers/game";
 
-const {View} = ReactNative;
-const {StyleSheet} = ReactNative;
+const { View } = ReactNative;
+const { StyleSheet } = ReactNative;
 
+export class Board extends React.Component<IBoardProps, any>{
 
-const Board: StatelessComponent<IBoardProps> = (props) => {
+    tiles: Tile[][] = [];
 
-    let width = constants.DEFAULT_COLUMNS * constants.TILE_WIDTH;
-    let height = constants.DEFAULT_ROWS * constants.TILE_HEIGHT;
-    let tiles: Tile[][] = [];
+    constructor(props: IBoardProps) {
+        super(props);
 
-    let _onTouch = (x: number, y: number) => {
+        this.tiles = [];
+    }
 
-        let row = Math.floor(y / constants.TILE_HEIGHT);
-        let column = Math.floor(x / constants.TILE_WIDTH);
+    highlightSequence(sequence: WinnerSequence): Promise<any> {
 
-        props.onTouch(row, column);
-    };
+        const tiles = sequence
+            .filter(cors => this.tiles[cors.row] && this.tiles[cors.row][cors.column])
+            .map(cors => this.tiles[cors.row][cors.column]);
 
-    let applyPlayerMappingToMatrix = (): TileSign[][] => {
-        let board: TileSign[][] = [];
+        const clearPromises = tiles.map(tile => tile.clearHighlight());
 
-        for (let numRow = 0; numRow < constants.DEFAULT_ROWS; numRow++) {
-            let row: TileSign[] = [];
-            for (let numCol = 0; numCol < constants.DEFAULT_COLUMNS; numCol++) {
-                if (props.mappedMoves[numRow] && props.mappedMoves[numRow][numCol])
-                    row.push(props.mappedMoves[numRow][numCol]);
-                else
-                    row.push(0);
+        const highlightPromises = tiles.map((tile, index) => {
+            const delay = index * 60;
+            return tile.highlight(true, { delay: delay });
+        })
+
+        return Promise.all(clearPromises).then(() =>
+            Promise.all(highlightPromises)
+        );
+    }
+
+    render() {
+        let width = constants.DEFAULT_COLUMNS * constants.TILE_WIDTH;
+        let height = constants.DEFAULT_ROWS * constants.TILE_HEIGHT;
+
+        let _onTouch = (x: number, y: number) => {
+
+            let row = Math.floor(y / constants.TILE_HEIGHT);
+            let column = Math.floor(x / constants.TILE_WIDTH);
+
+            this.props.onTouch(row, column);
+        };
+
+        let applyPlayerMappingToMatrix = (): TileSign[][] => {
+            let board: TileSign[][] = [];
+
+            for (let numRow = 0; numRow < constants.DEFAULT_ROWS; numRow++) {
+                let row: TileSign[] = [];
+                for (let numCol = 0; numCol < constants.DEFAULT_COLUMNS; numCol++) {
+                    if (this.props.mappedMoves[numRow] && this.props.mappedMoves[numRow][numCol])
+                        row.push(this.props.mappedMoves[numRow][numCol]);
+                    else
+                        row.push(0);
+                }
+                board.push(row);
             }
-            board.push(row);
-        }
 
-        return board;
-    };
+            return board;
+        };
 
-    let _renderBoard = () => applyPlayerMappingToMatrix().map((row, r) => {
-        tiles.push([]);
-        return <View key={`row-${r}`} style={styles.row}>
-            {row.map((cell, c) => <Tile sign={cell} key={`cell-${c}`} ref={tile => {tiles[r].push(tile)}}/>)}
-        </View>
-    });
+        let _renderBoard = () => applyPlayerMappingToMatrix().map((row, r) => {
+            this.tiles.push([]);
+            return <View key={`row-${r}`} style={styles.row}>
+                {row.map((cell, c) => <Tile sign={cell} key={`cell-${c}`} ref={tile => { this.tiles[r].push(tile) }} />)}
+            </View>
+        });
 
-    return (
-        <PanRespondEnhancer
-            width={width}
-            height={height}
-            onTouch={_onTouch}
-            lastMove={props.lastMove}
-        >
-            {_renderBoard()}
-        </PanRespondEnhancer>
-    )
-};
+        return (
+            <PanRespondEnhancer
+                width={width}
+                height={height}
+                onTouch={_onTouch}
+                lastMove={this.props.lastMove}
+            >
+                {_renderBoard()}
+            </PanRespondEnhancer>
+        )
+    }
 
-Board.prototype.highlight = () => {
-
-};
-
-export {Board};
+}
 
 const styles = StyleSheet.create({
     row: {

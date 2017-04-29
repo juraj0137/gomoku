@@ -13,7 +13,8 @@ import * as fromReducer from '../../reducers';
 import {INTERNET_STATUS} from "../../actions/net";
 import {Firebase} from "../../model/Firebase";
 import {resetGame} from "../../actions/game";
-import {route as afterGameRoute} from '../after-game';
+import { route as afterGameRoute } from '../after-game';
+import { winnerSequenceSubject } from "../../reducers/game";
 
 import AppStateStatus = __React.AppStateStatus;
 
@@ -29,6 +30,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
     private opponent: IPlayer;
     private serverId: string;
     private repeatedGame: boolean = false;
+    private board: Board;
 
     constructor(props: IMultiPlayerProps) {
         super(props);
@@ -149,8 +151,11 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
     private afterMove = (responseCode: string) => {
 
         if(responseCode == fromGame.MAKE_MOVE_GAME_END){
-            // todo make amazing animation in the end of game
-
+            // make amazing animation in the end of game
+            winnerSequenceSubject.take(1).subscribe(winnerSequence => {
+                this.board.highlightSequence(winnerSequence)
+                    .then(() => this.showAfterGameScreen());
+            })
             this.showAfterGameScreen();
         }
 
@@ -184,6 +189,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
                 lastMove={lastMove}
                 mappedMoves={this.props.mappedMoves}
                 onTouch={this.onTileTouch}
+                ref={board => this.board = board}
             />
 
         </View>;

@@ -1,20 +1,22 @@
 ///<reference path="Tile.d.tsx"/>
-import React       from 'react';
+import React from 'react';
 import ReactNative from 'react-native';
-import {constants} from '../../config';
+import { constants } from '../../config';
 
 const Icon = require("react-native-vector-icons/FontAwesome").default;
 
-const {StyleSheet} = ReactNative;
-const {Animated}   = ReactNative;
+const { StyleSheet } = ReactNative;
+const { Animated } = ReactNative;
 
-const {TILE_WIDTH} = constants;
-const {TILE_HEIGHT} = constants;
+const { TILE_WIDTH } = constants;
+const { TILE_HEIGHT } = constants;
 
 class Tile extends React.Component<ITileProps, ITileState> {
 
     private _animatedColor: __React.Animated.Value;
     private _highlightColor: string = 'rgba(14, 175, 14, 0.5)';
+
+    private _animationTimeout: number;
 
     protected componentWillMount(): void {
         this._animatedColor = new Animated.Value(0);
@@ -37,21 +39,50 @@ class Tile extends React.Component<ITileProps, ITileState> {
         return true;
     }
 
-    public highlight = (long: boolean = false): void => {
-        this._highlight(long);
+    public highlight = (long: boolean = false, options: any = null): Promise<any> => {
+        return this._highlight(long, options);
     };
 
-    private _highlight(long: boolean = false): void {
+    public clearHighlight = () => {
+        return new Promise(resolve => {
+            clearTimeout(this._animationTimeout);
+            this._animatedColor.stopAnimation(() => {
+                this._animatedColor.setValue(0)
+                resolve()
+            })
+        })
+    }
 
-        this._animatedColor.setValue(100);
+    private _highlight(long: boolean = false, options: any = null): Promise<any> {
 
-        if (long) return;
+        return new Promise((resolve, reject) => {
 
-        Animated.timing(this._animatedColor, {
-            toValue: 0,
-            duration: 1500,
-            delay: 500
-        }).start();
+            const animateIncome = (cb: Function) => {
+                const income = Object.assign({
+                    toValue: 100,
+                    duration: long ? 400 : 60,
+
+                }, options);
+
+                Animated.timing(this._animatedColor, income).start(() => cb());
+            }
+
+            const animateOutcome = (cb: Function) => {
+                const outcome = {
+                    toValue: 0,
+                    duration: 400
+                }
+
+                clearTimeout(this._animationTimeout);
+                this._animationTimeout = setTimeout(() => {
+                    Animated.timing(this._animatedColor, outcome).start(() => cb());
+                }, long ? 2500 : 1000)
+            }
+
+            animateIncome(() =>
+                animateOutcome(() => resolve())
+            )
+        })
     }
 
     render() {
@@ -66,9 +97,9 @@ class Tile extends React.Component<ITileProps, ITileState> {
         let cellText = (): __React.ReactElement<any> => {
             switch (this.props.sign) {
                 case constants.TILE_CIRCLE:
-                    return <Icon name="circle-o" style={{color: constants.TILE_COLOR_RED}} size={TILE_HEIGHT * 0.6}/>;
+                    return <Icon name="circle-o" style={{ color: constants.TILE_COLOR_RED }} size={TILE_HEIGHT * 0.6} />;
                 case constants.TILE_CROSS:
-                    return <Icon name="times" style={{color: constants.TILE_COLOR_BLUE}} size={TILE_HEIGHT * 0.6}/>;
+                    return <Icon name="times" style={{ color: constants.TILE_COLOR_BLUE }} size={TILE_HEIGHT * 0.6} />;
                 default:
                     return null;
             }
@@ -80,7 +111,7 @@ class Tile extends React.Component<ITileProps, ITileState> {
     }
 }
 
-export {Tile};
+export { Tile };
 
 const styles = StyleSheet.create({
     cell: {

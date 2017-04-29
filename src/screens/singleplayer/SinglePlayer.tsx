@@ -12,6 +12,8 @@ import { AfterGameModal } from '../../components/after-game-modal';
 import * as fromGame from '../../actions/game';
 import * as fromReducer from '../../reducers';
 import { route as afterGameRoute } from '../after-game';
+import { winnerSequenceSubject } from "../../reducers/game";
+// import { winnerSequenceSubject } from "../../reducers/game";
 
 const { View } = ReactNative;
 const { InteractionManager } = ReactNative;
@@ -21,7 +23,8 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
     private me: IPlayer;
     private opponent: IPlayer;
     private bot: Bot;
-
+    private board: Board;
+tijebe.co()? a kurvaaaaaaa;
     constructor(props: ISinglePlayerProps) {
         super(props);
 
@@ -68,8 +71,9 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
             status = 'tie';
         }
 
-        if (status != '')
+        if (status != '') {
             this.props.navigator.push(Object.assign({}, afterGameRoute, { status, onNewGame }))
+        }
     };
 
     private botMoveIfCan = (responseCode: string) => {
@@ -90,9 +94,11 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
     private afterMove = (responseCode: string) => {
 
         if (responseCode == fromGame.MAKE_MOVE_GAME_END) {
-            // todo make amazing animation in the end of game
-
-            this.showAfterGameScreen();
+            // make amazing animation in the end of game
+            winnerSequenceSubject.take(1).subscribe(winnerSequence => {
+                this.board.highlightSequence(winnerSequence)
+                    .then(() => this.showAfterGameScreen());
+            })
         }
 
         return responseCode;
@@ -135,6 +141,7 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
                 lastMove={lastMove}
                 mappedMoves={this.props.mappedMoves}
                 onTouch={this.onTileTouch}
+                ref={board => this.board = board}
             />
 
         </View>;

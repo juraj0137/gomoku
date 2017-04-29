@@ -1,7 +1,8 @@
 ///<reference path="game.d.ts"/>
-import {constants} from '../config';
-import {INIT_GAME, ADD_MOVE, CHANGE_GAME_STATUS, RESET} from '../actions/game';
-import {evaluatedGameBoard} from "../model/Evaluate";
+import { constants } from '../config';
+import { INIT_GAME, ADD_MOVE, CHANGE_GAME_STATUS, RESET } from '../actions/game';
+import { evaluatedGameBoard } from "../model/Evaluate";
+import { BehaviorSubject } from 'rxjs'
 import setPrototypeOf = Reflect.setPrototypeOf;
 
 /**
@@ -20,6 +21,13 @@ const initialState: IReduxStateGame = {
 };
 
 /**
+ * Subject of winner sequnce. Winner sequence is sorted array of tiles coordinates 
+ * which belongs to winner sequnce
+ */
+export type WinnerSequence = { column: number, row: number }[];
+export const winnerSequenceSubject = new BehaviorSubject<WinnerSequence>([]);
+
+/**
  * Game reducer
  *
  * @param state
@@ -30,7 +38,7 @@ function gameReducer(state: IReduxStateGame = initialState, commonAction: IActio
 
     if (commonAction.type == INIT_GAME) {
         const action = commonAction as IGenericAction<INIT_GAME>;
-        const {me, playerInTurn, opponent, gameId} = action.payload;
+        const { me, playerInTurn, opponent, gameId } = action.payload;
 
         return Object.assign({}, state, {
             id: gameId,
@@ -72,7 +80,7 @@ function gameReducer(state: IReduxStateGame = initialState, commonAction: IActio
 
 export default gameReducer;
 
-export type MAPPED_MOVES = {[key: number]: {[key: number]: TileSign}};
+export type MAPPED_MOVES = { [key: number]: { [key: number]: TileSign } };
 
 /**
  * Returns mapped array of moves
@@ -141,9 +149,9 @@ export function getIsTie(state: IReduxStateGame): boolean {
 export function getIsWinner(state: IReduxStateGame, lastMove: IMove): boolean {
 
 
-    type MAPPED_FILTERED_MOVES = {[key: number]: {[key: number]: number}}
+    type MAPPED_FILTERED_MOVES = { [key: number]: { [key: number]: number } }
 
-    const vectors: {[key: string]: [number, number]} = {
+    const vectors: { [key: string]: [number, number] } = {
         'up': [-1, 0], 'down': [1, 0], 'left': [0, -1], 'right': [0, 1],
         'upleft': [-1, -1], 'upright': [-1, 1], 'downleft': [1, -1], 'downright': [1, 1]
     };
@@ -172,14 +180,43 @@ export function getIsWinner(state: IReduxStateGame, lastMove: IMove): boolean {
         return cnt;
     }
 
-    return [
-            ['up', 'down'],
-            ['left', 'right'],
-            ['upleft', 'downright'],
-            ['upright', 'downleft'],
-        ].filter(vectors =>
-            (1 + getNumOfSameSign(vectors[0]) + getNumOfSameSign(vectors[1]) >= constants.SAME_IN_ROW)
-        ).length >= 1;
+    function getWinnerSequence(direction: string) {
+        let v = vectors[direction];
+        let cnt = [];
+
+        for (let i = 1; i < constants.SAME_IN_ROW; i++) {
+            let row = lastMove.row + (i * v[0]);
+            let column = lastMove.column + (i * v[1]);
+            if (typeof moves[row] == "undefined" || typeof moves[row][column] == "undefined")
+                break;
+            cnt.push({ row, column });
+        }
+        return cnt;
+    }
+
+    const winnerVector = [
+        ['up', 'down'],
+        ['left', 'right'],
+        ['upleft', 'downright'],
+        ['upright', 'downleft'],
+    ].filter(vectors => {
+        return 1 + getNumOfSameSign(vectors[0]) + getNumOfSameSign(vectors[1]) >= constants.SAME_IN_ROW
+    });
+
+    if (winnerVector.length >= 1) {
+        const sortedSequence: WinnerSequence = [{ row: lastMove.row, column: lastMove.column }]
+            .concat(getWinnerSequence(winnerVector[0][0]))
+            .concat(getWinnerSequence(winnerVector[0][1]))
+            .sort((a, b) => {
+                if (b.column != a.column) {
+                    return b.column - a.column;
+                }
+                return b.row - a.row;
+            })
+        winnerSequenceSubject.next(sortedSequence);
+        return true;
+    }
+    return false;
 }
 
 

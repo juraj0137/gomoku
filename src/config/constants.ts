@@ -57,4 +57,4 @@ export const FIREBASE_CONFIG = {
     messagingSenderId: "1034032504889"
 };
 
-export const enableAd = () => Math.random() < 0.2;
+export const enableAd = () => Math.random() < 0.20;

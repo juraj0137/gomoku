@@ -13,3 +13,9 @@ Open another terminal to run it on a iOS/android emulator<br>
     npm run ios 
         -- or 
     npm run android 
+
+Works only on linux
+
+    sudo npm run build -- --watch &! npm start &! npm run emulator &! npm run android
+        -- or
+    npm run all

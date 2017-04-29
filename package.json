@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start --transformer node_modules/react-native-sm-transformer --skipflow",
+    "start": "node node_modules/react-native/local-cli/cli.js start --skipflow",
     "test": "jest",
     "preinstall": "rm -rf typings",
     "postinstall": "node node_modules/typings/dist/bin.js install && npm run add-typings && tsc>/dev/null || npm run create-indexjs",
@@ -13,7 +13,8 @@
     "build": "tsc",
     "create-indexjs": "react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --sourcemap-output android/app/src/main/assets/index.android.map --assets-dest android/app/src/main/res/",
     "add-typings": "echo \"/// <reference path='../src/typings/index.d.ts' />\" >> typings/index.d.ts",
-    "emulator": "/home/juraj/Android/Sdk/tools/emulator -avd Nexus_6_API_25"
+    "emulator": "/home/juraj/Android/Sdk/tools/emulator -avd Nexus_6_API_25",
+    "all": "sudo npm run build -- --watch &! npm start &! npm run emulator &! npm run android"
   },
   "dependencies": {
     "firebase": "^3.6.5",
@@ -29,7 +30,7 @@
     "redux-logger": "^2.7.4",
     "redux-promise": "^0.5.3",
     "redux-thunk": "^2.1.0",
-    "rxjs": "^5.0.3"
+    "rxjs": "5.0.0-rc.1"
   },
   "jest": {
     "preset": "react-native"
