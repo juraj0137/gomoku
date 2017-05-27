@@ -24,7 +24,7 @@ class SinglePlayer extends React.Component<ISinglePlayerProps, ISinglePlayerStat
     private opponent: IPlayer;
     private bot: Bot;
     private board: Board;
-tijebe.co()? a kurvaaaaaaa;
+
     constructor(props: ISinglePlayerProps) {
         super(props);
 

@@ -39,7 +39,7 @@ class Tile extends React.Component<ITileProps, ITileState> {
         return true;
     }
 
-    public highlight = (long: boolean = false, options: any = null): Promise<any> => {
+    public highlight = (long: boolean = false, options: IHighlightOptions = null): Promise<any> => {
         return this._highlight(long, options);
     };
 
@@ -53,15 +53,16 @@ class Tile extends React.Component<ITileProps, ITileState> {
         })
     }
 
-    private _highlight(long: boolean = false, options: any = null): Promise<any> {
+    private _highlight(long: boolean = false, options: IHighlightOptions = null): Promise<any> {
 
         return new Promise((resolve, reject) => {
+
+            const skipOutcome = options && options.skipOutcome;
 
             const animateIncome = (cb: Function) => {
                 const income = Object.assign({
                     toValue: 100,
                     duration: long ? 400 : 60,
-
                 }, options);
 
                 Animated.timing(this._animatedColor, income).start(() => cb());
@@ -76,12 +77,17 @@ class Tile extends React.Component<ITileProps, ITileState> {
                 clearTimeout(this._animationTimeout);
                 this._animationTimeout = setTimeout(() => {
                     Animated.timing(this._animatedColor, outcome).start(() => cb());
-                }, long ? 2500 : 1000)
+                }, 1000)
             }
 
-            animateIncome(() =>
-                animateOutcome(() => resolve())
-            )
+            animateIncome(() => {
+                if (skipOutcome) {
+                    clearTimeout(this._animationTimeout);
+                    this._animationTimeout = setTimeout(() => resolve(), 1500)
+                } else {
+                    animateOutcome(() => resolve())
+                }
+            })
         })
     }
 
@@ -125,3 +131,8 @@ const styles = StyleSheet.create({
         flex: 1,
     } as __React.ViewStyle
 });
+
+interface IHighlightOptions {
+    delay: number;
+    skipOutcome?: boolean;
+}

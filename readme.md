@@ -1,6 +1,8 @@
 # Running
 
 One terminal for build and watch for changes<br>
+,
+
 
     sudo npm run build -- --watch
 
@@ -19,3 +21,7 @@ Works only on linux
     sudo npm run build -- --watch &! npm start &! npm run emulator &! npm run android
         -- or
     npm run all
+
+Build release
+
+    cd android && ./gradlew assembleRelease

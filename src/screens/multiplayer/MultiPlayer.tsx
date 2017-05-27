@@ -1,18 +1,18 @@
 ///<reference path="MultiPlayer.d.tsx"/>
-import React            from 'react';
-import ReactNative      from 'react-native';
-import {connect}        from "react-redux";
-import {Board}          from '../../components/board';
-import SnackBar         from 'react-native-android-snackbar';
-import {ScoreBar}       from '../../components/score-bar';
-import {baseStyle}      from '../../theme';
-import {constants}      from '../../config';
-import {LoadingPage}    from '../loading-page';
-import * as fromGame    from '../../actions/game';
+import React from 'react';
+import ReactNative from 'react-native';
+import { connect } from "react-redux";
+import { Board } from '../../components/board';
+import SnackBar from 'react-native-android-snackbar';
+import { ScoreBar } from '../../components/score-bar';
+import { baseStyle } from '../../theme';
+import { constants } from '../../config';
+import { LoadingPage } from '../loading-page';
+import * as fromGame from '../../actions/game';
 import * as fromReducer from '../../reducers';
-import {INTERNET_STATUS} from "../../actions/net";
-import {Firebase} from "../../model/Firebase";
-import {resetGame} from "../../actions/game";
+import { INTERNET_STATUS } from "../../actions/net";
+import { Firebase } from "../../model/Firebase";
+import { resetGame } from "../../actions/game";
 import { route as afterGameRoute } from '../after-game';
 import { winnerSequenceSubject } from "../../reducers/game";
 
@@ -20,9 +20,9 @@ import AppStateStatus = __React.AppStateStatus;
 
 const uuid = require('node-uuid');
 
-const {View}               = ReactNative;
-const {AppState}           = ReactNative;
-const {InteractionManager} = ReactNative;
+const { View } = ReactNative;
+const { AppState } = ReactNative;
+const { InteractionManager } = ReactNative;
 
 class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> {
 
@@ -34,7 +34,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
 
     constructor(props: IMultiPlayerProps) {
         super(props);
-        this.state = {showLoader: true};
+        this.state = { showLoader: true };
     }
 
     componentWillMount(): void {
@@ -67,7 +67,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
 
     protected componentDidMount() {
         InteractionManager.runAfterInteractions(() => {
-            this.setState({showLoader: false});
+            this.setState({ showLoader: false });
         });
         AppState.addEventListener('change', this.handleAppStateChange);
     }
@@ -106,7 +106,7 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
     };
 
     private showLongSnackbar(text: string) {
-        SnackBar.show(text, {duration: SnackBar.LONG});
+        SnackBar.show(text, { duration: SnackBar.LONG });
     }
 
     private onTileTouch = (row: number, column: number) => {
@@ -143,20 +143,23 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
             status = 'tie';
         }
 
-        if(status != '')
-            this.props.navigator.push(Object.assign({}, afterGameRoute, {status, onNewGame}))
+        if (status != '')
+            this.props.navigator.push(Object.assign({}, afterGameRoute, { status, onNewGame }))
     };
 
 
     private afterMove = (responseCode: string) => {
 
-        if(responseCode == fromGame.MAKE_MOVE_GAME_END){
+        console.warn(responseCode);
+
+        if (responseCode == fromGame.MAKE_MOVE_GAME_END) {
+
+
             // make amazing animation in the end of game
             winnerSequenceSubject.take(1).subscribe(winnerSequence => {
                 this.board.highlightSequence(winnerSequence)
                     .then(() => this.showAfterGameScreen());
             })
-            this.showAfterGameScreen();
         }
 
         return responseCode;
@@ -165,14 +168,14 @@ class MultiPlayer extends React.Component<IMultiPlayerProps, IMultiPlayerState> 
     render() {
 
         if (this.state.showLoader)
-            return <LoadingPage text=""/>;
+            return <LoadingPage text="" />;
 
         if (this.props.net.status !== INTERNET_STATUS.ONLINE)
-            return <LoadingPage text="Connecting"/>;
+            return <LoadingPage text="Connecting" />;
 
         const serverCode = !this.repeatedGame && this.serverId != null ? this.serverId : null;
         if (this.props.game.status == constants.GAME_CANCELED)
-            return <LoadingPage text="Waiting for opponent" serverCode={serverCode}/>;
+            return <LoadingPage text="Waiting for opponent" serverCode={serverCode} />;
 
         const moves = this.props.game.moves;
         const lastMove = moves.length > 0 ? moves[moves.length - 1] : null;

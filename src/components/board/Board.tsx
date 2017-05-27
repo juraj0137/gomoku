@@ -30,7 +30,7 @@ export class Board extends React.Component<IBoardProps, any>{
 
         const highlightPromises = tiles.map((tile, index) => {
             const delay = index * 60;
-            return tile.highlight(true, { delay: delay });
+            return tile.highlight(true, { delay: delay, skipOutcome: true });
         })
 
         return Promise.all(clearPromises).then(() =>
